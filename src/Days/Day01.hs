@@ -1,9 +1,10 @@
 module Days.Day01 where
+import           Data.Bifunctor   (bimap)
 import           Data.Composition ((.:))
 import           Data.List        (group, sort, transpose)
 import           Data.Map.Strict  (Map)
 import qualified Data.Map.Strict  as Map
-import           Data.Tuple.Extra (both)
+import           Data.Tuple.Extra (both, dupe)
 import qualified Program.RunDay   as R (runDay)
 import qualified Program.TestDay  as T (testDay)
 import           System.Clock     (TimeSpec)
@@ -33,7 +34,7 @@ part1 = sum . uncurry (zipWith (abs .: subtract))
 
 part2 :: Input -> Output2
 part2 = sum
-        . uncurry (Map.intersectionWithKey (\val num1 num2 -> val * num1 * num2))
+        . uncurry (Map.intersectionWithKey ((*) .: (*)))
         . both (Map.fromDistinctAscList
-                . map (\xs -> (head xs, length xs))
+                . map (bimap head length . dupe)
                 . group)
