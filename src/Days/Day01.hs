@@ -3,6 +3,7 @@ import           Data.Composition ((.:))
 import           Data.List        (group, sort, transpose)
 import           Data.Map.Strict  (Map)
 import qualified Data.Map.Strict  as Map
+import           Data.Tuple.Extra (both)
 import qualified Program.RunDay   as R (runDay)
 import qualified Program.TestDay  as T (testDay)
 import           System.Clock     (TimeSpec)
@@ -21,16 +22,18 @@ type Output1 = Int
 type Output2 = Int
 
 parser :: String -> Input
-parser = listToTuple . map sort . transpose . map (map read . words) . lines
+parser = listToTuple
+         . map sort
+         . transpose
+         . map (map read . words)
+         . lines
 
 part1 :: Input -> Output1
 part1 = sum . uncurry (zipWith (abs .: subtract))
 
 part2 :: Input -> Output2
-part2 (list1, list2) = sum $ Map.intersectionWithKey (\val num1 num2 -> val * num1 * num2) g1 g2
-    where
-        g1 = Map.fromDistinctAscList $ map valCount $ group list1
-        g2 = Map.fromDistinctAscList $ map valCount $ group list2
-
-        valCount :: [Int] -> (Int, Int)
-        valCount xs = (head xs, length xs)
+part2 = sum
+        . uncurry (Map.intersectionWithKey (\val num1 num2 -> val * num1 * num2))
+        . both (Map.fromDistinctAscList
+                . map (\xs -> (head xs, length xs))
+                . group)
