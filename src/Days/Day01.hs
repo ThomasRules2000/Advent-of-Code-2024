@@ -1,25 +1,36 @@
 module Days.Day01 where
-import qualified Program.RunDay  as R (runDay)
-import qualified Program.TestDay as T (testDay)
-import           System.Clock    (TimeSpec)
-import           Test.Hspec      (Spec)
+import           Data.Composition ((.:))
+import           Data.List        (group, sort, transpose)
+import           Data.Map.Strict  (Map)
+import qualified Data.Map.Strict  as Map
+import qualified Program.RunDay   as R (runDay)
+import qualified Program.TestDay  as T (testDay)
+import           System.Clock     (TimeSpec)
+import           Test.Hspec       (Spec)
+import           Util.Util        (listToTuple)
 
 runDay :: String -> IO (Maybe TimeSpec, Maybe TimeSpec, Maybe TimeSpec)
 runDay = R.runDay parser part1 part2
 
 testDay :: String -> String -> Spec
-testDay = T.testDay parser part1 part2 0 0
+testDay = T.testDay parser part1 part2 11 31
 
-type Input = [Int]
+type Input = ([Int], [Int])
 
 type Output1 = Int
 type Output2 = Int
 
 parser :: String -> Input
-parser = undefined
+parser = listToTuple . map sort . transpose . map (map read . words) . lines
 
 part1 :: Input -> Output1
-part1 = undefined
+part1 = sum . uncurry (zipWith (abs .: subtract))
 
 part2 :: Input -> Output2
-part2 = undefined
+part2 (list1, list2) = sum $ Map.intersectionWithKey (\val num1 num2 -> val * num1 * num2) g1 g2
+    where
+        g1 = Map.fromDistinctAscList $ map valCount $ group list1
+        g2 = Map.fromDistinctAscList $ map valCount $ group list2
+
+        valCount :: [Int] -> (Int, Int)
+        valCount xs = (head xs, length xs)

@@ -1,4 +1,4 @@
 module Config.Config where
 
 year :: Int
-year = 2022
+year = 2024
