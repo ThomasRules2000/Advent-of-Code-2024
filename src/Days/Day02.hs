@@ -36,4 +36,4 @@ part2 :: Input -> Output2
 part2 = length . filter checkSafe'
 
 checkSafe' :: [Int] -> Bool
-checkSafe' xs = any (checkSafe . uncurry (++) . fmap tail . (`splitAt` xs)) [0..length xs - 1]
+checkSafe' xs = checkSafe xs || any (checkSafe . uncurry (++) . fmap tail . (`splitAt` xs)) [0..length xs - 1]
