@@ -11,8 +11,6 @@ import qualified Program.RunDay                   as R (runDay)
 import qualified Program.TestDay                  as T (testDay)
 import           System.Clock                     (TimeSpec)
 import           Test.Hspec                       (Spec)
-import Data.Functor (($>))
-import Data.Composition ((.:))
 
 runDay :: String -> IO (Maybe TimeSpec, Maybe TimeSpec, Maybe TimeSpec)
 runDay = R.runDay parser part1 part2
