@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Program.RunDay where
-import           Config.Config                 (year)
+import           Config.Config          (year)
 import           Control.Exception      (SomeException, evaluate, try)
 import           Control.Monad.Extra    (unlessM)
 import qualified Data.ByteString.Char8  as BS
@@ -56,7 +56,7 @@ downloadFile f = case readMaybe @Int $ take 2 $ drop 9 f of
     Nothing -> putStrLn ("Can't find file " ++ f ++ "!") >> exitFailure
     Just n -> do
         key <- BS.readFile "sessionkey.txt"
-        req <- addRequestHeader "Cookie" ("session=" <> key) 
+        req <- addRequestHeader "Cookie" ("session=" <> key)
                <$> parseRequest ("https://adventofcode.com/" ++ show year ++ "/day/" ++ show n ++ "/input")
         resp <- httpBS req
         case getResponseStatusCode resp of
