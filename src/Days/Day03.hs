@@ -5,11 +5,14 @@ import           Control.Applicative              (many)
 import           Control.Applicative.Combinators  (choice)
 import           Data.Attoparsec.ByteString.Char8 (Parser, anyChar, char,
                                                    decimal, string)
+import           Data.Foldable                    (foldl')
 import           Data.Maybe                       (catMaybes)
 import qualified Program.RunDay                   as R (runDay)
 import qualified Program.TestDay                  as T (testDay)
 import           System.Clock                     (TimeSpec)
 import           Test.Hspec                       (Spec)
+import Data.Functor (($>))
+import Data.Composition ((.:))
 
 runDay :: String -> IO (Maybe TimeSpec, Maybe TimeSpec, Maybe TimeSpec)
 runDay = R.runDay parser part1 part2
@@ -52,11 +55,10 @@ part2 :: Input -> Output2
 part2 = sum . map (uncurry (*)) . getMuls'
 
 getMuls' :: [Instruction] -> [(Int, Int)]
-getMuls' = go True
+getMuls' = snd . foldl' go (True, [])
     where
-        go :: Bool -> [Instruction] -> [(Int, Int)]
-        go _     []           = []
-        go _     (Do:xs)      = go True xs
-        go _     (Don't:xs)   = go False xs
-        go True  ((Mul x):xs) = x:go True xs
-        go False ((Mul _):xs) = go False xs
+        go :: (Bool, [(Int, Int)]) -> Instruction -> (Bool, [(Int, Int)])
+        go (_,     xs) Do      = (True,  xs)
+        go (_,     xs) Don't   = (False, xs)
+        go (True,  xs) (Mul x) = (True,  x:xs)
+        go (False, xs) (Mul _) = (False, xs)
