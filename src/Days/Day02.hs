@@ -25,7 +25,7 @@ checkSafe :: [Int] -> Bool
 checkSafe xs = checkCond checkDiff xs && (checkCond (<) xs || checkCond (>) xs)
     where
         checkCond :: (Int -> Int -> Bool) -> [Int] -> Bool
-        checkCond p xs = and $ zipWith p xs $ tail xs
+        checkCond p ys = and $ zipWith p ys $ tail ys
 
         checkDiff :: Int -> Int -> Bool
         checkDiff x y = diff >= 1 && diff <= 3

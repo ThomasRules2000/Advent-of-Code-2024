@@ -2,7 +2,6 @@ module Days.Day01 where
 import           Data.Bifunctor   (bimap)
 import           Data.Composition ((.:))
 import           Data.List        (group, sort, transpose)
-import           Data.Map.Strict  (Map)
 import qualified Data.Map.Strict  as Map
 import           Data.Tuple.Extra (both, dupe)
 import qualified Program.RunDay   as R (runDay)
