@@ -42,6 +42,7 @@ dependencies:
 - attoparsec
 - parser-combinators
 - primitive
+- universe-base
 
 library:
   source-dirs: src
