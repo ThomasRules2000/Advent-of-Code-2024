@@ -5,6 +5,7 @@ import           Control.Applicative              (many)
 import           Control.Applicative.Combinators  (choice)
 import           Data.Attoparsec.ByteString.Char8 (Parser, anyChar, char,
                                                    decimal, string)
+import           Data.Composition                 ((.:))
 import           Data.Foldable                    (foldl')
 import           Data.Maybe                       (catMaybes)
 import qualified Program.RunDay                   as R (runDay)
@@ -23,40 +24,21 @@ type Input = [Instruction]
 type Output1 = Int
 type Output2 = Int
 
-data Instruction = Mul (Int, Int) | Do | Don't
+data Instruction = Mul Int | ChangeEna Bool
 
 parser :: Parser Input
 parser = catMaybes <$> many (choice [
-    Just       <$> parseMul,
-    Just Do    <$  string "do()",
-    Just Don't <$  string "don't()",
-    Nothing    <$  anyChar])
-
-parseMul :: Parser Instruction
-parseMul = do
-    string "mul("
-    x <- decimal
-    char ','
-    y <- decimal
-    char ')'
-    pure $ Mul (x, y)
+    (Just .: Mul .: (*))   <$ string "mul(" <*> decimal <* char ',' <*> decimal <* char ')',
+    Just (ChangeEna True)  <$ string "do()",
+    Just (ChangeEna False) <$ string "don't()",
+    Nothing                <$ anyChar])
 
 part1 :: Input -> Output1
-part1 = sum . map (uncurry (*)) . getMuls
-
-getMuls :: [Instruction] -> [(Int, Int)]
-getMuls []           = []
-getMuls ((Mul x):xs) = x:getMuls xs
-getMuls (_:xs)       = getMuls xs
+part1 = foldl' (\acc instr -> case instr of {Mul x -> x + acc; _ -> acc}) 0
 
 part2 :: Input -> Output2
-part2 = sum . map (uncurry (*)) . getMuls'
-
-getMuls' :: [Instruction] -> [(Int, Int)]
-getMuls' = snd . foldl' go (True, [])
+part2 = snd . foldl' go (True, 0)
     where
-        go :: (Bool, [(Int, Int)]) -> Instruction -> (Bool, [(Int, Int)])
-        go (_,     xs) Do      = (True,  xs)
-        go (_,     xs) Don't   = (False, xs)
-        go (True,  xs) (Mul x) = (True,  x:xs)
-        go (False, xs) (Mul _) = (False, xs)
+        go :: (Bool, Int) -> Instruction -> (Bool, Int)
+        go (_, acc) (ChangeEna e) = (e, acc)
+        go (e, acc) (Mul x)       = (e, if e then x + acc else acc)
