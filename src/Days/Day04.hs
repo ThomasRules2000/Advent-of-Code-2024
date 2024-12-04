@@ -1,9 +1,6 @@
 module Days.Day04 where
-import           Data.List             (transpose)
-import           Data.List.Split       (splitOn)
 import           Data.Matrix           (Matrix)
 import qualified Data.Matrix           as Matrix
-import           Data.Universe.Helpers (diagonals)
 import qualified Program.RunDay        as R (runDay)
 import qualified Program.TestDay       as T (testDay)
 import           System.Clock          (TimeSpec)
@@ -15,35 +12,31 @@ runDay = R.runDay parser part1 part2
 testDay :: String -> String -> Spec
 testDay = T.testDay parser part1 part2 18 9
 
-type Input = [String]
+type Input = Matrix Char
 
 type Output1 = Int
 type Output2 = Int
 
 parser :: String -> Input
-parser = lines
+parser = Matrix.fromLists . lines
 
 part1 :: Input -> Output1
-part1 xs = countRows xs + countCols xs + countForwardDiags xs + countBackwardDiags xs
+part1 m = sum [countXmas m (x, y) | x <- [1..Matrix.nrows m], y <- [1..Matrix.ncols m]]
 
-countXmas :: String -> Int
-countXmas = subtract 1 . length . splitOn "XMAS"
+countXmas :: Matrix Char -> (Int, Int) -> Int
+countXmas m (x, y) = length $ filter checkXmas [row, col, fwDiag, bwDiag]
+    where
+        row = [(x', y) | x' <- [x..x+3]]
+        col = [(x, y') | y' <- [y..y+3]]
+        fwDiag = [(x-n, y+n) | n <- [0..3]]
+        bwDiag = [(x+n, y+n) | n <- [0..3]]
 
-countRows :: [String] -> Int
-countRows xs = sum (map countXmas xs) + sum (map (countXmas . reverse) xs)
-
-countCols :: [String] -> Int
-countCols = countRows . transpose
-
-countForwardDiags :: [String] -> Int
-countForwardDiags = countRows . diagonals
-
-countBackwardDiags :: [String] -> Int
-countBackwardDiags = countForwardDiags . map reverse
+        checkXmas :: [(Int, Int)] -> Bool
+        checkXmas idxs = word == Just "XMAS" || word == Just "SAMX"
+            where word = traverse (flip (uncurry Matrix.safeGet) m) idxs
 
 part2 :: Input -> Output2
-part2 ss = length $ filter (isCrossMas m) [(x, y) | x <- [1..Matrix.nrows m - 2], y <- [1..Matrix.ncols m - 2]]
-    where m = Matrix.fromLists ss
+part2 m = length $ filter (isCrossMas m) [(x, y) | x <- [1..Matrix.nrows m - 2], y <- [1..Matrix.ncols m - 2]]
 
 isCrossMas :: Matrix Char -> (Int, Int) -> Bool
 isCrossMas m (x, y) = cValid && fwValid && bwValid
