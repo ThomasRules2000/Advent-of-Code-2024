@@ -1,7 +1,7 @@
 module Days.Day07 where
 import           Data.Bifunctor  (bimap)
 import           Data.List.Split (splitOn)
-import           Data.Maybe      (catMaybes)
+import           Data.Maybe      (mapMaybe)
 import qualified Program.RunDay  as R (runDay)
 import qualified Program.TestDay as T (testDay)
 import           System.Clock    (TimeSpec)
@@ -27,18 +27,23 @@ part1 = solve False
 
 checkEquation :: Bool -> (Int, [Int]) -> Bool
 checkEquation _ (_, []) = False
-checkEquation allowConcat (target, first:rest) = go first rest
+checkEquation allowConcat (target, first:rest) = elem first $ go rest
     where
-        go :: Int -> [Int] -> Bool
-        go acc [] = target == acc
-        go acc (x:xs) = or $ catMaybes [tryAdd, tryMul, tryConcat]
+        go :: [Int] -> [Int]
+        go [] = [target]
+        go (x:xs) = concatMap funcs $ go xs
             where
-                addResult = acc + x
-                mulResult = acc * x
-                concatResult = acc * findNextPow10 x + x
-                tryAdd = if addResult <= target then Just $ go addResult xs else Nothing
-                tryMul = if mulResult <= target then Just $ go mulResult xs else Nothing
-                tryConcat = if allowConcat && concatResult <= target then Just $ go concatResult xs else Nothing
+                funcs acc = mapMaybe ($ acc) [checkAdd x, checkMul x, checkConcat x]
+
+        checkAdd :: Int -> Int -> Maybe Int
+        checkAdd x acc = if acc > x then Just $ acc - x else Nothing
+
+        checkMul :: Int -> Int -> Maybe Int
+        checkMul x acc = if (acc `mod` x) == 0 then Just $ acc `div` x else Nothing
+
+        checkConcat :: Int -> Int -> Maybe Int
+        checkConcat x acc = if allowConcat && (acc `mod` pow10) == x then Just $ acc `div` pow10 else Nothing
+            where pow10 = findNextPow10 x
 
 solve :: Bool -> [(Int, [Int])] -> Int
 solve allowConcat = sum . map fst . filter (checkEquation allowConcat)
