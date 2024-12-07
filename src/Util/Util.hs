@@ -76,3 +76,8 @@ minimumOn f = minimumBy (compare `on` f)
 
 powerSet :: [a] -> [[a]]
 powerSet = filterM (const [True, False])
+
+findNextPow10 :: Int -> Int
+findNextPow10 x
+    | x < 10 = 10
+    | otherwise = 10 * findNextPow10 (x `div` 10)

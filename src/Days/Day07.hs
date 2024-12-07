@@ -6,7 +6,7 @@ import qualified Program.RunDay  as R (runDay)
 import qualified Program.TestDay as T (testDay)
 import           System.Clock    (TimeSpec)
 import           Test.Hspec      (Spec)
-import           Util.Util       (listToTuple)
+import           Util.Util       (listToTuple, findNextPow10)
 
 runDay :: String -> IO (Maybe TimeSpec, Maybe TimeSpec, Maybe TimeSpec)
 runDay = R.runDay parser part1 part2
@@ -31,17 +31,14 @@ checkEquation allowConcat (target, first:rest) = go first rest
     where
         go :: Int -> [Int] -> Bool
         go acc [] = target == acc
-        go acc (x:xs)
-            | null attempts = False
-            | otherwise = or attempts
+        go acc (x:xs) = or $ catMaybes [tryAdd, tryMul, tryConcat]
             where
                 addResult = acc + x
                 mulResult = acc * x
-                concatResult = read @Int (show acc ++ show x)
+                concatResult = acc * findNextPow10 x + x
                 tryAdd = if addResult <= target then Just $ go addResult xs else Nothing
                 tryMul = if mulResult <= target then Just $ go mulResult xs else Nothing
                 tryConcat = if allowConcat && concatResult <= target then Just $ go concatResult xs else Nothing
-                attempts = catMaybes [tryAdd, tryMul, tryConcat]
 
 solve :: Bool -> [(Int, [Int])] -> Int
 solve allowConcat = sum . map fst . filter (checkEquation allowConcat)
