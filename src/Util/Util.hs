@@ -4,6 +4,8 @@ import           Data.Bifunctor (bimap)
 import           Data.Char      (ord)
 import           Data.Foldable  (foldl', maximumBy, minimumBy)
 import           Data.Function  (on)
+import           Data.List      (tails, uncons)
+import           Data.Maybe     (mapMaybe)
 import           Debug.Trace    (trace)
 
 listToTuple :: [a] -> (a, a)
@@ -81,3 +83,8 @@ findNextPow10 :: Int -> Int
 findNextPow10 x
     | x < 10 = 10
     | otherwise = 10 * findNextPow10 (x `div` 10)
+
+getPairs :: [a] -> [(a,a)]
+getPairs = concat
+         . mapMaybe (fmap (\(x, xs) -> map (x,) xs) . uncons)
+         . tails
