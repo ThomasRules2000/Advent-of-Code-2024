@@ -36,16 +36,16 @@ countXmas m (x, y) = length $ filter checkXmas [row, col, fwDiag, bwDiag]
             where word = traverse (flip (uncurry Matrix.safeGet) m) idxs
 
 part2 :: Input -> Output2
-part2 m = length $ filter (isCrossMas m) [(x, y) | x <- [1..Matrix.nrows m - 2], y <- [1..Matrix.ncols m - 2]]
+part2 m = length $ filter (isCrossMas m) [(x, y) | x <- [2..Matrix.nrows m - 1], y <- [2..Matrix.ncols m - 1]]
 
 isCrossMas :: Matrix Char -> (Int, Int) -> Bool
 isCrossMas m (x, y) = cValid && fwValid && bwValid
     where
-        tl = m Matrix.! (x, y)
-        tr = m Matrix.! (x+2, y)
-        bl = m Matrix.! (x, y+2)
-        br = m Matrix.! (x+2, y+2)
-        c = m Matrix.! (x+1, y+1)
+        tl = m Matrix.! (x-1, y-1)
+        tr = m Matrix.! (x+1, y-1)
+        bl = m Matrix.! (x-1, y+1)
+        br = m Matrix.! (x+1, y+1)
+        c = m Matrix.! (x, y)
 
         cValid = c == 'A'
         fwValid = (tl == 'M' && br == 'S') || (tl == 'S' && br == 'M')

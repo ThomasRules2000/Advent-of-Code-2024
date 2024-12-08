@@ -32,8 +32,7 @@ checkEquation allowConcat (target, first:rest) = elem first $ go rest
         go :: [Int] -> [Int]
         go [] = [target]
         go (x:xs) = concatMap funcs $ go xs
-            where
-                funcs acc = mapMaybe ($ acc) [checkAdd x, checkMul x, checkConcat x]
+            where funcs acc = mapMaybe ($ acc) [checkAdd x, checkMul x, checkConcat x]
 
         checkAdd :: Int -> Int -> Maybe Int
         checkAdd x acc = if acc > x then Just $ acc - x else Nothing

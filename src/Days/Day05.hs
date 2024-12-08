@@ -35,7 +35,7 @@ getValids :: Set (Int, Int) -> [Int] -> Maybe Int
 getValids rules report = if checkValid rules report then Just $ report !! (length report `div` 2) else Nothing
 
 checkValid :: Set (Int, Int) -> [Int] -> Bool
-checkValid rules = Set.null . Set.intersection rules . Set.fromList . getPairs
+checkValid rules = Set.disjoint rules . Set.fromList . getPairs
 
 getPairs :: [Int] -> [(Int, Int)]
 getPairs []     = []
